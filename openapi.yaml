@@ -1,0 +1,255 @@
+openapi: 3.0.0
+info:
+  title: API Sistema de Triage y Gestión de Solicitudes Académicas
+  version: 1.0.0
+  description: API REST para gestionar el ciclo de vida de solicitudes académicas.
+
+servers:
+  - url: https://api.ingenieriauniquindio.edu.co/v1
+
+paths:
+
+  /solicitudes:
+    post:
+      summary: Registrar solicitud académica
+      operationId: registrarSolicitud
+      security: [ { BearerAuth: [] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SolicitudRegistro' }
+      responses:
+        '201': { description: Solicitud creada }
+        '400': { description: Datos inválidos }
+
+    get:
+      summary: Listar solicitudes con filtros
+      operationId: listarSolicitudes
+      security: [ { BearerAuth: [] } ]
+      parameters:
+        - { name: estado, in: query, schema: { type: string, enum: [REGISTRADA, CLASIFICADA, EN_ATENCION, ATENDIDA, CERRADA] } }
+        - { name: tipo, in: query, schema: { type: string, enum: [REGISTRO_ASIGNATURA, HOMOLOGACION, CANCELACION, CUPO, CONSULTA] } }
+        - { name: prioridad, in: query, schema: { type: string, enum: [ALTA, MEDIA, BAJA] } }
+        - { name: responsableId, in: query, schema: { type: string } }
+      responses:
+        '200': { description: Lista de solicitudes }
+
+  /solicitudes/{id}:
+    get:
+      summary: Consultar solicitud por ID
+      operationId: consultarSolicitud
+      security: [ { BearerAuth: [] } ]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: Solicitud encontrada }
+        '404': { description: Solicitud no encontrada }
+
+  /solicitudes/{id}/clasificar:
+    patch:
+      summary: Clasificar solicitud según su tipo
+      operationId: clasificarSolicitud
+      security: [ { BearerAuth: [] } ]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ClasificacionInput' }
+      responses:
+        '200': { description: Solicitud clasificada }
+        '400': { description: Datos inválidos }
+        '404': { description: Solicitud no encontrada }
+
+  /solicitudes/{id}/priorizar:
+    patch:
+      summary: Asignar prioridad a la solicitud
+      operationId: priorizarSolicitud
+      security: [ { BearerAuth: [] } ]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PriorizacionInput' }
+      responses:
+        '200': { description: Prioridad asignada }
+        '400': { description: Datos inválidos }
+        '404': { description: Solicitud no encontrada }
+
+  /solicitudes/{id}/asignar:
+    patch:
+      summary: Asignar responsable autorizado
+      operationId: asignarSolicitud
+      security: [ { BearerAuth: [] } ]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AsignacionInput' }
+      responses:
+        '200': { description: Responsable asignado }
+        '400': { description: Responsable inválido }
+        '404': { description: Solicitud no encontrada }
+
+  /solicitudes/{id}/atender:
+    patch:
+      summary: Registrar avance de atención
+      operationId: atenderSolicitud
+      security: [ { BearerAuth: [] } ]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AtencionInput' }
+      responses:
+        '200': { description: Estado actualizado }
+        '400': { description: Transición inválida }
+        '404': { description: Solicitud no encontrada }
+
+  /solicitudes/{id}/cerrar:
+    patch:
+      summary: Cerrar solicitud (solo si está ATENDIDA)
+      operationId: cerrarSolicitud
+      security: [ { BearerAuth: [] } ]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CierreInput' }
+      responses:
+        '200': { description: Solicitud cerrada }
+        '400': { description: No puede cerrarse en estado actual }
+        '404': { description: Solicitud no encontrada }
+
+  /solicitudes/{id}/historial:
+    get:
+      summary: Consultar historial auditable
+      operationId: consultarHistorial
+      security: [ { BearerAuth: [] } ]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: Historial de acciones }
+        '404': { description: Solicitud no encontrada }
+
+  /solicitudes/sugerir-clasificacion:
+    post:
+      summary: Sugerir tipo y prioridad usando IA (opcional)
+      operationId: sugerirClasificacionIA
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SugerenciaIAInput' }
+      responses:
+        '200':
+          description: Sugerencia generada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SugerenciaIAOutput' }
+
+components:
+
+  schemas:
+
+    SolicitudRegistro:
+      type: object
+      required: [descripcion, canalOrigen, identificacionSolicitante]
+      properties:
+        descripcion: { type: string }
+        canalOrigen: { type: string, enum: [CSU, CORREO, SAC, TELEFONICO, PORTAL_WEB] }
+        identificacionSolicitante: { type: string }
+
+    Solicitud:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        tipo: { type: string }
+        descripcion: { type: string }
+        canalOrigen: { type: string }
+        identificacionSolicitante: { type: string }
+        estado: { type: string, enum: [REGISTRADA, CLASIFICADA, EN_ATENCION, ATENDIDA, CERRADA] }
+        prioridad: { type: string, enum: [ALTA, MEDIA, BAJA], nullable: true }
+        responsableId: { type: string, nullable: true }
+        fechaRegistro: { type: string, format: date-time }
+        fechaActualizacion: { type: string, format: date-time }
+        fechaCierre: { type: string, format: date-time, nullable: true }
+
+    ClasificacionInput:
+      type: object
+      required: [tipo]
+      properties:
+        tipo: { type: string, enum: [REGISTRO_ASIGNATURA, HOMOLOGACION, CANCELACION, CUPO, CONSULTA] }
+
+    PriorizacionInput:
+      type: object
+      required: [prioridad, justificacion]
+      properties:
+        prioridad: { type: string, enum: [ALTA, MEDIA, BAJA] }
+        justificacion: { type: string }
+
+    AsignacionInput:
+      type: object
+      required: [responsableId]
+      properties:
+        responsableId: { type: string }
+        observacion: { type: string }
+
+    AtencionInput:
+      type: object
+      required: [nuevoEstado]
+      properties:
+        nuevoEstado: { type: string, enum: [EN_ATENCION, ATENDIDA] }
+        observacion: { type: string }
+
+    CierreInput:
+      type: object
+      required: [observacionCierre]
+      properties:
+        observacionCierre: { type: string }
+
+    HistorialAccion:
+      type: object
+      properties:
+        fecha: { type: string, format: date-time }
+        usuario: { type: string }
+        accion: { type: string }
+        estadoAnterior: { type: string }
+        estadoNuevo: { type: string }
+        observacion: { type: string }
+
+    SugerenciaIAInput:
+      type: object
+      required: [descripcion]
+      properties:
+        descripcion: { type: string }
+
+    SugerenciaIAOutput:
+      type: object
+      properties:
+        tipoSugerido: { type: string }
+        prioridadSugerida: { type: string }
+        confianza: { type: number }
+
+    ErrorResponse:
+      type: object
+      required: [error, message]
+      properties:
+        error: { type: string }
+        message: { type: string }
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
