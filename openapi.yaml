@@ -135,12 +135,29 @@ paths:
     get:
       summary: Consultar historial auditable
       operationId: consultarHistorial
-      security: [ { BearerAuth: [] } ]
+      security: [ { BearerAuth: [ ] } ]
       parameters:
-        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
       responses:
-        '200': { description: Historial de acciones }
-        '404': { description: Solicitud no encontrada }
+        '200':
+          description: Historial de acciones
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HistorialAccion'
+        '404':
+          description: Solicitud no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /solicitudes/sugerir-clasificacion:
     post:
