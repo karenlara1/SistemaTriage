@@ -1,10 +1,10 @@
 package co.edu.uniquindio.sistematriage.domain.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import co.edu.uniquindio.sistematriage.domain.enums.RolUsuario;
+import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -12,6 +12,7 @@ import java.util.UUID;
 public class Usuario {
 
     @Id
+    @GeneratedValue
     @Column(name = "idUsuario", unique = true, nullable = false)
     private UUID idUsuario;
 
@@ -24,5 +25,17 @@ public class Usuario {
     @Column(name = "activo")
     private boolean activo;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "rol", nullable = false, length = 30)
+    private RolUsuario rol;
 
+    @OneToMany(mappedBy = "solicitante", fetch = FetchType.LAZY)
+    private List<Solicitud> solicitudesRealizadas = new ArrayList<>();
+
+    @OneToMany(mappedBy = "responsable", fetch = FetchType.LAZY)
+    private List<Solicitud> solicitudesAsignadas = new ArrayList<>();
+
+    @OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY)
+    private List<HistorialSolicitud> accionesRealizadas = new ArrayList<>();
 }
+

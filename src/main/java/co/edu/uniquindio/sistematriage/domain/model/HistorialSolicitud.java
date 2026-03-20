@@ -1,8 +1,10 @@
 package co.edu.uniquindio.sistematriage.domain.model;
 
+import co.edu.uniquindio.sistematriage.domain.enums.Estado;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "Historial")
@@ -10,8 +12,9 @@ import java.time.LocalDateTime;
 public class HistorialSolicitud {
 
     @Id
+    @GeneratedValue
     @Column(name = "idHistorial", nullable = false, unique = true)
-    private String idHistorial;
+    private UUID idHistorial;
 
     @Column(name = "fechaHoraAccion", nullable = false)
     private LocalDateTime fechaHoraAccion;
@@ -22,10 +25,23 @@ public class HistorialSolicitud {
     @Column(name = "observacion", length = 200)
     private String observacion;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estadoAnterior", length = 20)
+    private Estado estadoAnterior;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estadoNuevo", length = 20)
+    private Estado estadoNuevo;
+
+
     //--RELACIONES--
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idSolicitud", nullable = false)
     private Solicitud solicitud;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idUsuario")
+    private Usuario usuario;
 
     @PrePersist
     public void prePersist(){
