@@ -2,6 +2,7 @@ package co.edu.uniquindio.sistematriage.domain.model;
 
 import co.edu.uniquindio.sistematriage.domain.enums.RolUsuario;
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +10,12 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "Usuario")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+
 public class Usuario {
 
     @Id

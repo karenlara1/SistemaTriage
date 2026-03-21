@@ -2,12 +2,18 @@ package co.edu.uniquindio.sistematriage.domain.model;
 
 import co.edu.uniquindio.sistematriage.domain.enums.Estado;
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "Historial")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 
 public class HistorialSolicitud {
 

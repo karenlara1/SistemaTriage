@@ -6,8 +6,7 @@ import co.edu.uniquindio.sistematriage.domain.enums.Estado;
 import co.edu.uniquindio.sistematriage.domain.enums.Prioridad;
 import co.edu.uniquindio.sistematriage.domain.enums.TipoSolicitud;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -18,7 +17,9 @@ import java.util.UUID;
 @Table(name = "Solicitud")
 @Getter
 @Setter
-
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Solicitud {
 
     @Id
