@@ -4,6 +4,7 @@ import co.edu.uniquindio.sistematriage.domain.enums.RolUsuario;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -35,6 +36,10 @@ public class Usuario {
     @Enumerated(EnumType.STRING)
     @Column(name = "rol", nullable = false, length = 30)
     private RolUsuario rol;
+
+    @Builder.Default
+    @Column(name = "fechaRegistro", nullable = false)
+    private LocalDateTime fechaRegistro = LocalDateTime.now();
 
     @OneToMany(mappedBy = "solicitante", fetch = FetchType.LAZY)
     private List<Solicitud> solicitudesRealizadas = new ArrayList<>();
