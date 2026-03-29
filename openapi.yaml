@@ -256,7 +256,6 @@ components:
       properties:
         tipoSugerido: { type: string }
         prioridadSugerida: { type: string }
-        confianza: { type: number }
 
     ErrorResponse:
       type: object

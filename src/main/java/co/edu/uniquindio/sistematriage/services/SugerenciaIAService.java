@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
-public class SugereciaIAService {
+public class SugerenciaIAService {
 
    public Map<String, Object> obtenerSugerenciaSimulada(Solicitud solicitud) {
     Map<String, Object> sugerencia = new HashMap<>();
