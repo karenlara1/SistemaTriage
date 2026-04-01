@@ -58,6 +58,7 @@ public class SolicitudController {
                 .orElseThrow(() -> new ResourceNotFoundException("Solicitante no encontrado"));
 
         Solicitud nueva = Solicitud.builder()
+                .nombre(dto.getNombre())
                 .descripcion(dto.getDescripcion())
                 .canalOrigen(dto.getCanalOrigen())
                 .solicitante(solicitante)
@@ -213,7 +214,7 @@ public class SolicitudController {
      * Retorna todos los cambios de estado y acciones realizadas sobre ella.
      * @return lista de acciones del historial con HTTP 200
      */
-    @PatchMapping("/{id}/historial")
+    @GetMapping("/{id}/historial")
     public ResponseEntity<List<HistorialAccionDTO>> historial(@PathVariable UUID id) {
         return ResponseEntity.ok(
                 solicitudService.consultarHistorial(id)

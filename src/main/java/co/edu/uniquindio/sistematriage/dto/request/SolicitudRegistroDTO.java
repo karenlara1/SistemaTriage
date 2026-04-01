@@ -9,6 +9,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SolicitudRegistroDTO {
+
+    @NotBlank
+    private String nombre;
+
     @NotBlank
     private String descripcion;
 

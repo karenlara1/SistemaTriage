@@ -12,9 +12,9 @@ import java.util.UUID;
 public interface SolicitudRepository extends JpaRepository<Solicitud, UUID> {
 
     List<Solicitud> findByEstado (Estado estado);
-    List<Solicitud> findByTipo (TipoSolicitud tipoSolicitud);
+    List<Solicitud> findByTipoSolicitud (TipoSolicitud tipoSolicitud);
     List<Solicitud> findByPrioridad (Prioridad prioridad);
-    List<Solicitud> findByResponsable (UUID idUsuario);
-    List<Solicitud> findBySolicitante (UUID idUsuario);
+    List<Solicitud> findByResponsable_IdUsuario(UUID idUsuario);
+    List<Solicitud> findBySolicitante_IdUsuario(UUID idUsuario);
 
 }

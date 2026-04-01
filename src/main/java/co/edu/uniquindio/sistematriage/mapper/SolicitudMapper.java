@@ -20,6 +20,7 @@ public class SolicitudMapper {
     public SolicitudResponseDTO toResponse(Solicitud s){
         return SolicitudResponseDTO.builder()
                 .id(s.getIdSolicitud())
+                .nombre(s.getNombre())
                 .descripcion(s.getDescripcion())
                 .tipoSolicitud(s.getTipoSolicitud())
                 .canalOrigen(s.getCanalOrigen())
