@@ -7,9 +7,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AsignacionInputDTO {
+
     @NotBlank
     private String responsableId;
 
-    private String observcion;
+    private String observacion;
 
 }

@@ -9,8 +9,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PriorizacionInputDTO {
+
     @NotNull
-    private Prioridad priodidad;
+    private Prioridad prioridad;
 
     @NotBlank
     private String justificacion;

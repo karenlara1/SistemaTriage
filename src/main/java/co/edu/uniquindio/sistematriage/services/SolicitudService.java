@@ -31,7 +31,7 @@ public class SolicitudService {
     /*
      * Constructor de la clase que Spring Boot utiliza para la "Inyección de Dependencias".
      * La anotación @Autowired le dice a Spring que, al crear el SolicitudService,
-     * debe entregarle automáticamente las herramientas que necesita para funcionar 
+     * debe entregarle automáticamente las herramientas que necesita para funcionar
      * (los repositorios y el servicio de historial).
      */
     @Autowired
@@ -54,8 +54,6 @@ public class SolicitudService {
         }
 
         solicitud.setEstado(Estado.REGISTRADA);
-        solicitud.setFechaRegistro(LocalDateTime.now());
-        solicitud.setFechaActualizacion(LocalDateTime.now());
 
         Solicitud saved = solicitudRepository.save(solicitud);
 
@@ -67,11 +65,25 @@ public class SolicitudService {
 
     /*
      * Obtiene una lista con todas las solicitudes registradas en el sistema.
-     * La anotación @Transactional(readOnly = true) le avisa a Spring Boot que 
+     * La anotación @Transactional(readOnly = true) le avisa a Spring Boot que
      * solo queremos "leer" datos de la base, lo que optimiza la memoria y velocidad.
      */
     @Transactional(readOnly = true)
-    public List<Solicitud> listarSolicitudes() {
+    public List<Solicitud> listarSolicitudes(Estado estado, TipoSolicitud tipo,
+                                             Prioridad prioridad, UUID responsableId) {
+
+        if (estado != null) {
+            return solicitudRepository.findByEstado(estado);
+        }
+        if (tipo != null) {
+            return solicitudRepository.findByTipoSolicitud(tipo);
+        }
+        if (prioridad != null) {
+            return solicitudRepository.findByPrioridad(prioridad);
+        }
+        if (responsableId != null) {
+            return solicitudRepository.findByResponsable_IdUsuario(responsableId);
+        }
         return solicitudRepository.findAll();
     }
 
@@ -119,6 +131,11 @@ public class SolicitudService {
     public Solicitud priorizarSolicitud(UUID id, Prioridad prioridad, String justificacion, Usuario actor) {
         Solicitud solicitud = obtenerSolicitudPorId(id);
 
+        if (solicitud.getEstado() == Estado.CERRADA) {
+            throw new BusinessRuleException("No se puede priorizar una solicitud cerrada");
+        }
+
+        Estado estadoActual = solicitud.getEstado();
         solicitud.setPrioridad(prioridad);
         solicitud.setJustificacionPrioridad(justificacion);
         solicitud.setFechaActualizacion(LocalDateTime.now());
@@ -126,7 +143,7 @@ public class SolicitudService {
         Solicitud saved = solicitudRepository.save(solicitud);
         historialSolicitudService.registrarCambio(saved, actor,
                 "PRIORIZACION", "Priorizada como " + prioridad + ". " + justificacion,
-                solicitud.getEstado(), solicitud.getEstado());
+                estadoActual, estadoActual);
 
         return saved;
     }
@@ -140,6 +157,10 @@ public class SolicitudService {
     public Solicitud asignarResponsable(UUID id, UUID idResponsable, Usuario actor) {
         Solicitud solicitud = obtenerSolicitudPorId(id);
 
+        if (solicitud.getEstado() == Estado.CERRADA) {
+            throw new BusinessRuleException("No se puede asignar responsable a una solicitud cerrada");
+        }
+
         Usuario responsable = usuarioRepository.findById(idResponsable)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario responsable no encontrado"));
 
@@ -147,13 +168,14 @@ public class SolicitudService {
             throw new BusinessRuleException("El usuario responsable debe estar activo para ser asignado");
         }
 
+        Estado estadoActual = solicitud.getEstado();
         solicitud.setResponsable(responsable);
         solicitud.setFechaActualizacion(LocalDateTime.now());
 
         Solicitud saved = solicitudRepository.save(solicitud);
         historialSolicitudService.registrarCambio(saved, actor,
                 "ASIGNACION", "Asignada a responsable: " + responsable.getNombre(),
-                solicitud.getEstado(), solicitud.getEstado());
+                estadoActual, estadoActual);
 
         return saved;
     }
@@ -174,6 +196,10 @@ public class SolicitudService {
             throw new BusinessRuleException("No se puede atender una solicitud ya cerrada");
         }
 
+        if (estadoAnterior == Estado.ATENDIDA) {
+            throw new BusinessRuleException("La solicitud ya fue atendida. Para finalizarla, proceda a cerrarla");
+        }
+
         if (estadoAnterior == Estado.REGISTRADA || estadoAnterior == Estado.CLASIFICADA) {
             solicitud.setEstado(Estado.EN_ATENCION);
         } else if (estadoAnterior == Estado.EN_ATENCION) {
@@ -192,14 +218,15 @@ public class SolicitudService {
     /*
      * Procede con el cierre de la solicitud.
      * Regla de negocio: "Al cerrar: solo cerrar si está en estado correcto".
-     * Valida que la solicitud haya pasado por atención (EN_ATENCION o ATENDIDA).
+     * Valida que la solicitud haya pasado por atención y este ATENDIDA.
      */
     public Solicitud cerrarSolicitud(UUID id, String observacion, Usuario actor) {
         Solicitud solicitud = obtenerSolicitudPorId(id);
         Estado estadoAnterior = solicitud.getEstado();
 
-        if (estadoAnterior != Estado.ATENDIDA && estadoAnterior != Estado.EN_ATENCION) {
-            throw new BusinessRuleException("La solicitud solo puede ser cerrada si está EN_ATENCION o ATENDIDA");
+        if (estadoAnterior != Estado.ATENDIDA) {
+            throw new BusinessRuleException(
+                    "La solicitud solo puede cerrarse si está en estado ATENDIDA. Estado actual: " + estadoAnterior);
         }
 
         solicitud.setEstado(Estado.CERRADA);

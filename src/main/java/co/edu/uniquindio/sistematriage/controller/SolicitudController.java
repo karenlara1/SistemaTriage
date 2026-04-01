@@ -82,17 +82,12 @@ public class SolicitudController {
             @RequestParam(required = false) Prioridad prioridad,
             @RequestParam(required = false) UUID responsableId) {
 
-        List<Solicitud> todas = solicitudService.listarSolicitudes();
-
-        List<SolicitudResponseDTO> lista = todas.stream()
-                .filter(s -> estado == null || s.getEstado() == estado)
-                .filter(s -> tipo == null || s.getTipoSolicitud() == tipo)
-                .filter(s -> prioridad == null || s.getPrioridad() == prioridad)
-                .filter(s -> responsableId == null || s.getResponsable() != null && s.getResponsable().getIdUsuario().equals(responsableId))
-                .map(solicitudMapper::toResponse)
-                .toList();
-
-        return ResponseEntity.ok(lista);
+        return ResponseEntity.ok(
+                solicitudService.listarSolicitudes(estado, tipo, prioridad, responsableId)
+                        .stream()
+                        .map(solicitudMapper::toResponse)
+                        .toList()
+        );
     }
 
     /*
@@ -142,7 +137,7 @@ public class SolicitudController {
                 .orElseThrow(() -> new ResourceNotFoundException("Actor no encontrado"));
         return ResponseEntity.ok(
                 solicitudMapper.toResponse(
-                        solicitudService.priorizarSolicitud(id, dto.getPriodidad(), dto.getJustificacion(), actor)
+                        solicitudService.priorizarSolicitud(id, dto.getPrioridad(), dto.getJustificacion(), actor)
                 )
         );
     }

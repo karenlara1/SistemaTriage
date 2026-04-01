@@ -17,9 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 /**
- * Controller REST que expone el endpoint de sugerencia automática mediante IA.
- * Permite al sistema sugerir un tipo de solicitud y una prioridad
- *
+ * Controller REST que expone el endpoint de sugerencia automática mediante IA simulada.
+ * Analiza la descripción ingresada y sugiere tipo de solicitud y prioridad (RF-10).
  */
 @RestController
 @RequestMapping("/solicitudes")
@@ -30,10 +29,8 @@ public class SugerenciaIAController {
 
     /*
      * POST /solicitudes/sugerir-clasificacion
-     * Genera una sugerencia de clasificación y prioridad basada en la descripción.
-     * Construye una solicitud temporal con la descripción recibida y la pasa
-     * al servicio de IA simulada para obtener tipo y prioridad sugeridos.
-     * @return sugerencia con tipo y prioridad con HTTP 200
+     * Genera una sugerencia de tipo y prioridad basada en la descripción del texto.
+     * @return sugerencia con tipo, prioridad y justificación con HTTP 200
      */
     @PostMapping("/sugerir-clasificacion")
     public ResponseEntity<SugerenciaIAOutputDTO> sugerir(
@@ -48,9 +45,9 @@ public class SugerenciaIAController {
         SugerenciaIAOutputDTO response = SugerenciaIAOutputDTO.builder()
                 .tipoSugerido((TipoSolicitud) resultado.get("tipo"))
                 .prioridadSugerida((Prioridad) resultado.get("prioridad"))
+                .justificacion((String) resultado.get("justificacion"))
                 .build();
 
         return ResponseEntity.ok(response);
     }
-
 }
