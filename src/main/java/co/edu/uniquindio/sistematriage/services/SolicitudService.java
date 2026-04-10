@@ -64,27 +64,14 @@ public class SolicitudService {
     }
 
     /*
-     * Obtiene una lista con todas las solicitudes registradas en el sistema.
+     * Obtiene una lista con todas las solicitudes registradas en el sistema segun los parametros.
      * La anotación @Transactional(readOnly = true) le avisa a Spring Boot que
      * solo queremos "leer" datos de la base, lo que optimiza la memoria y velocidad.
      */
     @Transactional(readOnly = true)
     public List<Solicitud> listarSolicitudes(Estado estado, TipoSolicitud tipo,
                                              Prioridad prioridad, UUID responsableId) {
-
-        if (estado != null) {
-            return solicitudRepository.findByEstado(estado);
-        }
-        if (tipo != null) {
-            return solicitudRepository.findByTipoSolicitud(tipo);
-        }
-        if (prioridad != null) {
-            return solicitudRepository.findByPrioridad(prioridad);
-        }
-        if (responsableId != null) {
-            return solicitudRepository.findByResponsable_IdUsuario(responsableId);
-        }
-        return solicitudRepository.findAll();
+        return solicitudRepository.buscarConFiltros(estado, tipo, prioridad, responsableId);
     }
 
     /*
