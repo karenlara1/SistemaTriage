@@ -1,9 +1,6 @@
 package co.edu.uniquindio.sistematriage.repository;
 
-import co.edu.uniquindio.sistematriage.domain.enums.Estado;
-import co.edu.uniquindio.sistematriage.domain.enums.Prioridad;
-import co.edu.uniquindio.sistematriage.domain.enums.TipoSolicitud;
-import co.edu.uniquindio.sistematriage.domain.enums.RolUsuario;
+import co.edu.uniquindio.sistematriage.domain.enums.*;
 import co.edu.uniquindio.sistematriage.domain.model.HistorialSolicitud;
 import co.edu.uniquindio.sistematriage.domain.model.Solicitud;
 import co.edu.uniquindio.sistematriage.domain.model.Usuario;
@@ -12,12 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import java.time.LocalDateTime;
 import java.util.List;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 class HistoriaSolicitudRepositoryTest {
 
     @Autowired
-    private HistoriaSolicitudRepository historiaSolicitudRepository;
+    private HistorialSolicitudRepository historialSolicitudRepository;
 
     @Autowired
     private SolicitudRepository solicitudRepository;
@@ -38,7 +36,7 @@ class HistoriaSolicitudRepositoryTest {
         Solicitud solicitud = Solicitud.builder()
                 .nombre("Homologación de asignatura")
                 .descripcion("Solicitud de homologación de materia de otro programa")
-                .canalOrigen(co.edu.uniquindio.sistematriage.domain.enums.Canal.EMAIL)
+                .canalOrigen(Canal.CORREO)
                 .solicitante(solicitante)
                 .estado(Estado.REGISTRADA)
                 .prioridad(Prioridad.MEDIA)
@@ -66,10 +64,10 @@ class HistoriaSolicitudRepositoryTest {
                 .fechaHoraAccion(LocalDateTime.now().minusMinutes(1))
                 .build();
 
-        historiaSolicitudRepository.save(primer);
-        historiaSolicitudRepository.save(segundo);
+        historialSolicitudRepository.save(primer);
+        historialSolicitudRepository.save(segundo);
 
-        List<HistorialSolicitud> resultados = historiaSolicitudRepository
+        List<HistorialSolicitud> resultados = historialSolicitudRepository
                 .findBySolicitud_IdSolicitudOrderByFechaHoraAccionAsc(solicitud.getIdSolicitud());
 
         assertThat(resultados).hasSize(2);

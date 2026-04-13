@@ -1,9 +1,6 @@
 package co.edu.uniquindio.sistematriage.repository;
 
-import co.edu.uniquindio.sistematriage.domain.enums.Estado;
-import co.edu.uniquindio.sistematriage.domain.enums.Prioridad;
-import co.edu.uniquindio.sistematriage.domain.enums.TipoSolicitud;
-import co.edu.uniquindio.sistematriage.domain.enums.RolUsuario;
+import co.edu.uniquindio.sistematriage.domain.enums.*;
 import co.edu.uniquindio.sistematriage.domain.model.Solicitud;
 import co.edu.uniquindio.sistematriage.domain.model.Usuario;
 import org.junit.jupiter.api.Test;
@@ -56,7 +53,7 @@ class SolicitudRepositoryTest {
                 .nombre("Solicitud de cupo")
                 .descripcion("Cupo para materia cerrada")
                 .tipoSolicitud(TipoSolicitud.CUPO)
-                .canalOrigen(co.edu.uniquindio.sistematriage.domain.enums.Canal.PRESENCIAL)
+                .canalOrigen(Canal.TELEFONICO)
                 .solicitante(solicitante)
                 .estado(Estado.REGISTRADA)
                 .prioridad(Prioridad.MEDIA)
