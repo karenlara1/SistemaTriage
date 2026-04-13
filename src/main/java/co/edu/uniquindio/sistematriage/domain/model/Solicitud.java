@@ -27,10 +27,10 @@ public class Solicitud {
     @Column(name = "idSolicitud", nullable = false, unique = true)
     private UUID idSolicitud;
 
-    @Column(name = "nombre", nullable = false, length = 30 )
+    @Column(name = "nombre", nullable = false, length = 250)
     private String nombre;
 
-    @Column(name = "descripcion", length = 100)
+    @Column(name = "descripcion", length = 500)
     private String descripcion;
 
     @Enumerated(EnumType.STRING)
@@ -50,10 +50,10 @@ public class Solicitud {
     private Estado estado;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "prioridad", length = 10)
+    @Column(name = "prioridad", length = 20)
     private Prioridad prioridad;
 
-    @Column(name = "justificacionPrioridad", length = 100)
+    @Column(name = "justificacionPrioridad", length = 500)
     private String justificacionPrioridad;
 
     @ManyToOne(fetch = FetchType.LAZY)

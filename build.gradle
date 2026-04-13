@@ -1,18 +1,14 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '4.0.4'
-    id 'io.spring.dependency-management' version '1.1.7'
+    id 'org.springframework.boot' version '3.3.5'
+    id 'io.spring.dependency-management' version '1.1.6'
 }
 
 group = 'co.edu.uniquindio'
 version = '0.0.1-SNAPSHOT'
 description = 'SistemaTriage'
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(25)
-    }
-}
+java { sourceCompatibility = '21'; targetCompatibility = '21' }
 
 configurations {
     compileOnly {
@@ -29,7 +25,7 @@ repositories {
 // BOM de Spring AI 2.x — compatible con Spring Boot 4.x
 dependencyManagement {
     imports {
-        mavenBom 'org.springframework.ai:spring-ai-bom:2.0.0-M4'
+        mavenBom 'org.springframework.ai:spring-ai-bom:1.0.0-M4'
     }
 }
 
@@ -40,7 +36,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
     // Spring AI 2.x + OpenAI: compatible con Spring Boot 4
-    implementation 'org.springframework.ai:spring-ai-starter-model-openai'
+    implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter'
 
     // spring-dotenv: carga el archivo .env como propiedades de Spring
     implementation 'me.paulschwarz:spring-dotenv:4.0.0'
@@ -53,6 +49,11 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-test-autoconfigure'
+    testRuntimeOnly 'com.h2database:h2'
+
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
 tasks.named('test') {
