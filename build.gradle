@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.3.5'
+    id 'org.springframework.boot' version '3.5.7'
     id 'io.spring.dependency-management' version '1.1.6'
 }
 
@@ -8,7 +8,10 @@ group = 'co.edu.uniquindio'
 version = '0.0.1-SNAPSHOT'
 description = 'SistemaTriage'
 
-java { sourceCompatibility = '21'; targetCompatibility = '21' }
+java {
+    sourceCompatibility = '21'
+    targetCompatibility = '21'
+}
 
 configurations {
     compileOnly {
@@ -18,42 +21,39 @@ configurations {
 
 repositories {
     mavenCentral()
-    // Spring AI 2.x milestones están en este repositorio
-    maven { url 'https://repo.spring.io/milestone' }
 }
 
-// BOM de Spring AI 2.x — compatible con Spring Boot 4.x
 dependencyManagement {
     imports {
-        mavenBom 'org.springframework.ai:spring-ai-bom:1.0.0-M4'
+        // Versión estable compatible con Spring Boot 3.5.x
+        mavenBom 'org.springframework.ai:spring-ai-bom:1.0.1'
     }
 }
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
 
-    // Spring AI 2.x + OpenAI: compatible con Spring Boot 4
-    implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter'
+    // IA (OpenAI)
+    implementation 'org.springframework.ai:spring-ai-starter-model-openai'
 
-    // spring-dotenv: carga el archivo .env como propiedades de Spring
+    // Variables de entorno (.env)
     implementation 'me.paulschwarz:spring-dotenv:4.0.0'
 
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
-
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
 
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
+    // Lombok (versión estable compatible con Java 21)
+    compileOnly 'org.projectlombok:lombok:1.18.44'
+    annotationProcessor 'org.projectlombok:lombok:1.18.44'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.boot:spring-boot-test-autoconfigure'
     testRuntimeOnly 'com.h2database:h2'
 
-    testCompileOnly 'org.projectlombok:lombok'
-    testAnnotationProcessor 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok:1.18.44'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.44'
 }
 
 tasks.named('test') {
