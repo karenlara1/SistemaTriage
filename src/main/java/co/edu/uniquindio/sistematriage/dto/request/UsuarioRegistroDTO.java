@@ -14,6 +14,9 @@ public class UsuarioRegistroDTO {
     @NotBlank
     private String nombre;
 
+    @NotBlank(message = "La contraseña es obligatoria")
+    private String password;
+
     @NotBlank
     @Email
     private String correo;

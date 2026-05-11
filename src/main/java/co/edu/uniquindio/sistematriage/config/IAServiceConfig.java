@@ -19,6 +19,13 @@ import org.springframework.context.annotation.Configuration;
  *
  * Esto garantiza RF-11: el sistema funciona sin IA si no hay API key configurada.
  */
+
+// NOTA: IAServiceFallbackImpl e IAServiceOpenAIImpl se registran como @Bean
+// desde esta clase de configuración en lugar de usar @Service directamente,
+// porque la selección entre implementaciones depende de la propiedad
+// ia.provider en application.properties (patrón Factory con @Conditional).
+// Agregar @Service causaría doble registro y fallaría la inyección de ChatClient
+
 @Slf4j
 @Configuration
 public class IAServiceConfig {

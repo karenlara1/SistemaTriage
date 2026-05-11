@@ -8,15 +8,15 @@ import co.edu.uniquindio.sistematriage.domain.model.Usuario;
 import co.edu.uniquindio.sistematriage.dto.request.*;
 import co.edu.uniquindio.sistematriage.dto.response.HistorialAccionDTO;
 import co.edu.uniquindio.sistematriage.dto.response.SolicitudResponseDTO;
-import co.edu.uniquindio.sistematriage.exception.ResourceNotFoundException;
 import co.edu.uniquindio.sistematriage.mapper.HistorialMapper;
 import co.edu.uniquindio.sistematriage.mapper.SolicitudMapper;
-import co.edu.uniquindio.sistematriage.repository.UsuarioRepository;
 import co.edu.uniquindio.sistematriage.services.SolicitudService;
+import co.edu.uniquindio.sistematriage.services.UsuarioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,9 +29,10 @@ import java.util.UUID;
  * Gestiona las operaciones de registro, consulta, clasificación, priorización,
  * asignación, atención, cierre e historial de solicitudes.
  *
- * Nota: El parámetro actorId se recibe como query param en esta versión
- * (Hito 2). En el Hito 3 será reemplazado por el usuario extraído del token JWT.
+ * El actor (usuario autenticado) se extrae automaticamente del token JWT
+ *
  */
+
 @RestController
 @RequestMapping("/solicitudes")
 @RequiredArgsConstructor
@@ -39,9 +40,15 @@ import java.util.UUID;
 public class SolicitudController {
 
     private final SolicitudService solicitudService;
-    private final UsuarioRepository usuarioRepository;
+    private final UsuarioService usuarioService;
     private final SolicitudMapper solicitudMapper;
     private final HistorialMapper historialMapper;
+
+    // Método auxiliar: extrae el usuario del token JWT
+    private Usuario getActor(Authentication auth) {
+        String userId = (String) auth.getDetails();
+        return usuarioService.obtenerUsuarioPorId(UUID.fromString(userId));
+    }
 
     /*
      * POST /solicitudes
@@ -51,11 +58,10 @@ public class SolicitudController {
      */
     @PostMapping
     public ResponseEntity<SolicitudResponseDTO> registrar(
-            @Valid @RequestBody SolicitudRegistroDTO dto) {
+            @Valid @RequestBody SolicitudRegistroDTO dto,
+            Authentication auth) {
 
-        Usuario solicitante = usuarioRepository
-                .findById(UUID.fromString(dto.getIdSolicitante()))
-                .orElseThrow(() -> new ResourceNotFoundException("Solicitante no encontrado"));
+        Usuario solicitante = getActor(auth);
 
         Solicitud nueva = Solicitud.builder()
                 .nombre(dto.getNombre())
@@ -84,9 +90,7 @@ public class SolicitudController {
 
         return ResponseEntity.ok(
                 solicitudService.listarSolicitudes(estado, tipo, prioridad, responsableId)
-                        .stream()
-                        .map(solicitudMapper::toResponse)
-                        .toList()
+                        .stream().map(solicitudMapper::toResponse).toList()
         );
     }
 
@@ -111,15 +115,11 @@ public class SolicitudController {
     public ResponseEntity<SolicitudResponseDTO> clasificar(
             @PathVariable UUID id,
             @Valid @RequestBody ClasificacionInputDTO dto,
-            @RequestParam UUID actorId) {
+            Authentication auth) {
 
-        Usuario actor = usuarioRepository.findById(actorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Actor no encontrado"));
-        return ResponseEntity.ok(
-                solicitudMapper.toResponse(
-                        solicitudService.clasificarSolicitud(id, dto.getTipo(), actor)
-                )
-        );
+        return ResponseEntity.ok(solicitudMapper.toResponse(
+                solicitudService.clasificarSolicitud(id, dto.getTipo(), getActor(auth))
+        ));
     }
 
     /*
@@ -131,15 +131,11 @@ public class SolicitudController {
     public ResponseEntity<SolicitudResponseDTO> priorizar(
             @PathVariable UUID id,
             @Valid @RequestBody PriorizacionInputDTO dto,
-            @RequestParam UUID actorId) {
+            Authentication auth) {
 
-        Usuario actor = usuarioRepository.findById(actorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Actor no encontrado"));
-        return ResponseEntity.ok(
-                solicitudMapper.toResponse(
-                        solicitudService.priorizarSolicitud(id, dto.getPrioridad(), dto.getJustificacion(), actor)
-                )
-        );
+        return ResponseEntity.ok(solicitudMapper.toResponse(
+                solicitudService.priorizarSolicitud(id, dto.getPrioridad(), dto.getJustificacion(), getActor(auth))
+        ));
     }
 
     /*
@@ -152,15 +148,11 @@ public class SolicitudController {
     public ResponseEntity<SolicitudResponseDTO> asignar(
             @PathVariable UUID id,
             @Valid @RequestBody AsignacionInputDTO dto,
-            @RequestParam UUID actorId) {
+            Authentication auth) {
 
-        Usuario actor = usuarioRepository.findById(actorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Actor no encontrado"));
-        return ResponseEntity.ok(
-                solicitudMapper.toResponse(
-                        solicitudService.asignarResponsable(id, UUID.fromString(dto.getResponsableId()), actor)
-                )
-        );
+        return ResponseEntity.ok(solicitudMapper.toResponse(
+                solicitudService.asignarResponsable(id, UUID.fromString(dto.getResponsableId()), getActor(auth))
+        ));
     }
 
     /*
@@ -172,15 +164,11 @@ public class SolicitudController {
     public ResponseEntity<SolicitudResponseDTO> atender(
             @PathVariable UUID id,
             @Valid @RequestBody AtencionInputDTO dto,
-            @RequestParam UUID actorId) {
+            Authentication auth) {
 
-        Usuario actor = usuarioRepository.findById(actorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Actor no encontrado"));
-        return ResponseEntity.ok(
-                solicitudMapper.toResponse(
-                        solicitudService.registrarAtencion(id, dto.getObservacion(), actor)
-                )
-        );
+        return ResponseEntity.ok(solicitudMapper.toResponse(
+                solicitudService.registrarAtencion(id, dto.getObservacion(), getActor(auth))
+        ));
     }
 
     /*
@@ -192,15 +180,11 @@ public class SolicitudController {
     public ResponseEntity<SolicitudResponseDTO> cerrar(
             @PathVariable UUID id,
             @Valid @RequestBody CierreInputDTO dto,
-            @RequestParam UUID actorId) {
+            Authentication auth) {
 
-        Usuario actor = usuarioRepository.findById(actorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Actor no encontrado"));
-        return ResponseEntity.ok(
-                solicitudMapper.toResponse(
-                        solicitudService.cerrarSolicitud(id, dto.getObservacionCierre(), actor)
-                )
-        );
+        return ResponseEntity.ok(solicitudMapper.toResponse(
+                solicitudService.cerrarSolicitud(id, dto.getObservacionCierre(), getActor(auth))
+        ));
     }
 
     /*
@@ -216,5 +200,4 @@ public class SolicitudController {
                         .stream().map(historialMapper::toDTO).toList()
         );
     }
-
 }

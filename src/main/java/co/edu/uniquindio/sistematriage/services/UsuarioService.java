@@ -8,6 +8,7 @@ import co.edu.uniquindio.sistematriage.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.UUID;
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
     /*
      * Constructor utilizado para la "Inyección de Dependencias".
@@ -26,8 +28,9 @@ public class UsuarioService {
      * cuando se inicializa este servicio.
      */
     @Autowired
-    public UsuarioService(UsuarioRepository usuarioRepository) {
+    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /*
@@ -42,6 +45,7 @@ public class UsuarioService {
 
         usuario.setFechaRegistro(LocalDateTime.now());
         usuario.setActivo(true);
+        usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
 
         return usuarioRepository.save(usuario);
     }

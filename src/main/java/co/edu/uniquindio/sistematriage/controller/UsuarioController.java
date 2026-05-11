@@ -44,6 +44,7 @@ public class UsuarioController {
                 .nombre(dto.getNombre())
                 .correo(dto.getCorreo())
                 .rol(dto.getRol())
+                .password(dto.getPassword())
                 .build();
 
         Usuario guardado = usuarioService.registrarUsuario(nuevo);
