@@ -1,0 +1,107 @@
+# ============================================================
+# docker-compose.yml - SistemaTriage
+# Orquesta: MariaDB + Backend (Spring Boot) + Frontend (Angular)
+# ============================================================
+# Uso:
+#   Levantar todo:    docker compose up -d
+#   Ver logs:         docker compose logs -f
+#   Detener todo:     docker compose down
+#   Borrar volúmenes: docker compose down -v
+
+services:
+
+  # ─────────────────────────────────────────────────────────
+  # BASE DE DATOS - MariaDB
+  # ─────────────────────────────────────────────────────────
+  mariadb:
+    image: mariadb:11.4
+    container_name: triage-mariadb
+    restart: unless-stopped
+    environment:
+      # Estas variables las lee la imagen oficial de MariaDB al iniciarse
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
+      MARIADB_DATABASE: sistema_triage
+      MARIADB_USER: triage_user
+      MARIADB_PASSWORD: ${DB_PASSWORD:-triagepassword}
+    ports:
+      # Exponemos en 3307 del host para no chocar con MariaDB/MySQL local
+      # Formato: "puerto_host:puerto_contenedor"
+      - "3307:3306"
+    volumes:
+      # Volumen nombrado: los datos persisten aunque el contenedor se elimine
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - triage-network
+    healthcheck:
+      # Docker esperará a que MariaDB esté listo antes de arrancar el backend
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 20s
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─────────────────────────────────────────────────────────
+  # BACKEND - Spring Boot
+  # ─────────────────────────────────────────────────────────
+  backend:
+    build:
+      context: .           # La raíz del proyecto (donde está el Dockerfile)
+      dockerfile: Dockerfile
+    container_name: triage-backend
+    restart: unless-stopped
+    environment:
+      # Sobrescriben los valores por defecto del Dockerfile
+      # La URL usa "mariadb" como host (nombre del servicio en esta red)
+      SPRING_DATASOURCE_URL: jdbc:mariadb://mariadb:3306/sistema_triage
+      SPRING_DATASOURCE_USERNAME: triage_user
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-triagepassword}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_PROFILES_ACTIVE: prod
+
+      # OpenAI - cargado desde el archivo .env (nunca hardcodear en el código)
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-sk-dummy}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      IA_PROVIDER: ${IA_PROVIDER:-fallback}
+
+      # JWT - cargado desde el archivo .env
+      JWT_SECRET: ${JWT_SECRET:-sistematriage-super-secret-key-2024-uniquindio}
+    ports:
+      - "8080:8080"
+    depends_on:
+      mariadb:
+        # El backend solo arranca cuando MariaDB supere el healthcheck
+        condition: service_healthy
+    networks:
+      - triage-network
+
+  # ─────────────────────────────────────────────────────────
+  # FRONTEND - Angular servido por Nginx
+  # ─────────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: triage-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - triage-network
+
+# ─────────────────────────────────────────────────────────
+# REDES
+# ─────────────────────────────────────────────────────────
+networks:
+  triage-network:
+    driver: bridge
+    # Red interna: los contenedores se comunican por nombre de servicio
+    # mariadb, backend y frontend se "ven" entre sí dentro de esta red
+
+# ─────────────────────────────────────────────────────────
+# VOLÚMENES
+# ─────────────────────────────────────────────────────────
+volumes:
+  mariadb_data:
+  # Volumen gestionado por Docker: persiste datos de BD entre reinicios

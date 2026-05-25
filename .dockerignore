@@ -1,0 +1,31 @@
+# ============================================================
+# .dockerignore - Archivos que Docker NO debe copiar al build
+# ============================================================
+# Funciona igual que .gitignore pero para Docker.
+# Reducir lo que se envía al daemon de Docker = builds más rápidos.
+
+# Carpeta de build de Gradle (no la necesitamos, el Dockerfile recompila)
+build/
+.gradle/
+
+# Carpeta de build del frontend (el Dockerfile la regenera)
+frontend/dist/
+frontend/node_modules/
+
+# Archivos de entorno con secretos (nunca al contenedor)
+.env
+*.env
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Documentación y otros
+DiagramaUML/
+Postman/
+*.md
