@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {
   Solicitud, HistorialAccion,
-  Estado, TipoSolicitud, Prioridad
+  Estado, TipoSolicitud, Prioridad, Canal
 } from '../core/models/solicitud.model';
 
 @Injectable({ providedIn: 'root' })
@@ -13,16 +13,18 @@ export class SolicitudService {
   constructor(private http: HttpClient) {}
 
   listar(filtros?: {
-    estado?: Estado;
-    tipo?: TipoSolicitud;
-    prioridad?: Prioridad;
+    estado?: Estado | '';
+    tipo?: TipoSolicitud | '';
+    prioridad?: Prioridad | '';
     responsableId?: string;
   }): Observable<Solicitud[]> {
     let params = new HttpParams();
-    if (filtros?.estado)        params = params.set('estado',        filtros.estado);
-    if (filtros?.tipo)          params = params.set('tipo',          filtros.tipo);
-    if (filtros?.prioridad)     params = params.set('prioridad',     filtros.prioridad);
+
+    if (filtros?.estado) params = params.set('estado', filtros.estado);
+    if (filtros?.tipo) params = params.set('tipo', filtros.tipo);
+    if (filtros?.prioridad) params = params.set('prioridad', filtros.prioridad);
     if (filtros?.responsableId) params = params.set('responsableId', filtros.responsableId);
+
     return this.http.get<Solicitud[]>(this.api, { params });
   }
 
@@ -33,29 +35,50 @@ export class SolicitudService {
   registrar(dto: {
     nombre: string;
     descripcion: string;
-    canalOrigen: string;
+    canalOrigen: Canal;
+    idSolicitante: string;
   }): Observable<Solicitud> {
     return this.http.post<Solicitud>(this.api, dto);
   }
 
-  clasificar(id: string, tipo: TipoSolicitud): Observable<Solicitud> {
-    return this.http.patch<Solicitud>(`${this.api}/${id}/clasificar`, { tipo });
+  clasificar(id: string, tipo: TipoSolicitud, actorId: string): Observable<Solicitud> {
+    return this.http.patch<Solicitud>(
+      `${this.api}/${id}/clasificar`,
+      { tipo },
+      { params: { actorId } }
+    );
   }
 
-  priorizar(id: string, prioridad: Prioridad, justificacion: string): Observable<Solicitud> {
-    return this.http.patch<Solicitud>(`${this.api}/${id}/priorizar`, { prioridad, justificacion });
+  priorizar(id: string, prioridad: Prioridad, justificacion: string, actorId: string): Observable<Solicitud> {
+    return this.http.patch<Solicitud>(
+      `${this.api}/${id}/priorizar`,
+      { prioridad, justificacion },
+      { params: { actorId } }
+    );
   }
 
-  asignar(id: string, responsableId: string): Observable<Solicitud> {
-    return this.http.patch<Solicitud>(`${this.api}/${id}/asignar`, { responsableId });
+  asignar(id: string, responsableId: string, actorId: string): Observable<Solicitud> {
+    return this.http.patch<Solicitud>(
+      `${this.api}/${id}/asignar`,
+      { responsableId },
+      { params: { actorId } }
+    );
   }
 
-  atender(id: string, observacion: string): Observable<Solicitud> {
-    return this.http.patch<Solicitud>(`${this.api}/${id}/atender`, { observacion });
+  atender(id: string, observacion: string, actorId: string): Observable<Solicitud> {
+    return this.http.patch<Solicitud>(
+      `${this.api}/${id}/atender`,
+      { observacion },
+      { params: { actorId } }
+    );
   }
 
-  cerrar(id: string, observacionCierre: string): Observable<Solicitud> {
-    return this.http.patch<Solicitud>(`${this.api}/${id}/cerrar`, { observacionCierre });
+  cerrar(id: string, observacionCierre: string, actorId: string): Observable<Solicitud> {
+    return this.http.patch<Solicitud>(
+      `${this.api}/${id}/cerrar`,
+      { observacionCierre },
+      { params: { actorId } }
+    );
   }
 
   historial(id: string): Observable<HistorialAccion[]> {

@@ -53,6 +53,15 @@ export interface HistorialAccion {
   estadoNuevo: Estado | null;
 }
 
+export interface HistorialAccionUI {
+  fecha: string;
+  usuario: string;
+  accion: string;
+  estadoAnterior: Estado | null;
+  estadoNuevo: Estado | null;
+  observacion: string | null;
+}
+
 // ─── Etiquetas legibles para mostrar en la UI ─────────────────────────────────
 
 export const ESTADO_LABEL: Record<Estado, string> = {

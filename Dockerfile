@@ -22,7 +22,7 @@ WORKDIR /app
 # en el próximo build Docker reutiliza esta capa y NO vuelve a
 # descargar dependencias de internet. Esto hace los builds mucho más rápidos.
 COPY gradlew .
-COPY gradle ./gradle
+COPY backend/gradle ./gradle
 COPY build.gradle .
 COPY settings.gradle .
 
@@ -36,7 +36,7 @@ RUN ./gradlew dependencies --no-daemon -q
 COPY src ./src
 
 # También necesitamos el openapi.yaml si Spring lo sirve como recurso estático
-COPY openapi.yaml ./src/main/resources/openapi.yaml
+COPY backend/src/main/resources/static/openapi.yaml ./src/main/resources/openapi.yaml
 
 # Compilar y empaquetar. -x test omite los tests en el build
 # (en CI/CD los tests se corren en un paso separado)

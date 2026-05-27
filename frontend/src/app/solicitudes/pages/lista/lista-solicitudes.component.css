@@ -1,1 +1,161 @@
-/* PERSONA B */
+:host {
+  display: block;
+  min-height: 100vh;
+  background: linear-gradient(145deg, var(--verde-oscuro) 0%, var(--verde-medio) 60%, var(--verde-claro) 100%);
+  padding: 2rem;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header,
+.filters,
+.table-container {
+  background: var(--blanco);
+  border-radius: 16px;
+  box-shadow: var(--sombra-lg);
+}
+
+.header {
+  padding: 1.5rem 2rem;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h1 {
+  color: var(--verde-oscuro);
+  margin: 0;
+}
+
+.header p {
+  color: var(--gris-texto);
+  margin: .3rem 0 0;
+}
+
+.filters {
+  padding: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+}
+
+.field label {
+  color: var(--verde-oscuro);
+  font-weight: 600;
+}
+
+input,
+select,
+textarea {
+  padding: .75rem;
+  border: 1px solid var(--gris-borde);
+  border-radius: 10px;
+  outline: none;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--verde-medio);
+}
+
+.actions {
+  display: flex;
+  gap: .8rem;
+  margin: 1rem 0;
+}
+
+.btn-primary {
+  background: var(--verde-medio);
+  color: white;
+  border: none;
+  padding: .75rem 1rem;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: var(--verde-oscuro);
+}
+
+.btn-secondary {
+  background: var(--blanco);
+  color: var(--verde-medio);
+  border: 1px solid var(--verde-medio);
+  padding: .75rem 1rem;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.table-container {
+  overflow: hidden;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background: linear-gradient(135deg, var(--verde-oscuro), var(--verde-medio));
+  color: white;
+}
+
+th,
+td {
+  padding: 1rem;
+  text-align: left;
+  color: var(--gris-texto);
+}
+
+tbody tr {
+  border-bottom: 1px solid var(--gris-borde);
+}
+
+tbody tr:hover {
+  background: rgba(0, 128, 96, .06);
+}
+
+.badge {
+  display: inline-block;
+  padding: .35rem .7rem;
+  border-radius: 999px;
+  font-size: .8rem;
+  font-weight: 700;
+}
+
+.badge-registrada { background: #e5e7eb; color: #374151; }
+.badge-clasificada { background: #dbeafe; color: #1d4ed8; }
+.badge-en_atencion { background: #fef3c7; color: #92400e; }
+.badge-atendida { background: #d1fae5; color: #065f46; }
+.badge-cerrada { background: #ede9fe; color: #5b21b6; }
+
+.badge-alta { background: #fee2e2; color: #991b1b; }
+.badge-media { background: #fef3c7; color: #92400e; }
+.badge-baja { background: #d1fae5; color: #065f46; }
+
+.error-box,
+.alert-error {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: .8rem 1rem;
+  border-radius: 10px;
+  margin: 1rem 0;
+}
+
+.empty {
+  text-align: center;
+  color: var(--gris-texto);
+}

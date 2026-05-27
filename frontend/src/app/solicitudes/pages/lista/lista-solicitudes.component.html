@@ -1,4 +1,114 @@
-<!-- PERSONA B: implementar esta vista -->
-<div class="page-container">
-  <p>Vista "ListaSolicitudesComponent" pendiente.</p>
+<div class="page">
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; margin-bottom:1.5rem;">
+      <div>
+        <h1>Solicitudes académicas</h1>
+        <p>Consulta, filtra y gestiona las solicitudes registradas.</p>
+      </div>
+
+      <a routerLink="/solicitudes/nueva" class="btn btn-primary">
+        Nueva solicitud
+      </a>
+    </div>
+
+    <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:1rem; margin-bottom:1rem;">
+      <div class="field">
+        <label>Estado</label>
+        <select [(ngModel)]="filtros.estado">
+          <option value="">Todos</option>
+          @for (estado of estados; track estado) {
+            <option [value]="estado">{{ ESTADO_LABEL[estado] }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Tipo</label>
+        <select [(ngModel)]="filtros.tipo">
+          <option value="">Todos</option>
+          @for (tipo of tipos; track tipo) {
+            <option [value]="tipo">{{ TIPO_LABEL[tipo] }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Prioridad</label>
+        <select [(ngModel)]="filtros.prioridad">
+          <option value="">Todas</option>
+          @for (prioridad of prioridades; track prioridad) {
+            <option [value]="prioridad">{{ PRIORIDAD_LABEL[prioridad] }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Responsable ID</label>
+        <input [(ngModel)]="filtros.responsableId" placeholder="UUID del responsable">
+      </div>
+    </div>
+
+    <div style="display:flex; gap:.7rem; margin-bottom:1.5rem;">
+      <button class="btn btn-primary" (click)="cargar()">Filtrar</button>
+      <button class="btn btn-outline" (click)="limpiar()">Limpiar</button>
+    </div>
+
+    @if (error) {
+      <div class="alert-error">{{ error }}</div>
+    }
+
+    @if (cargando) {
+      <p>Cargando solicitudes...</p>
+    } @else {
+      <div style="overflow-x:auto;">
+        <table style="width:100%; border-collapse:collapse;">
+          <thead>
+          <tr>
+            <th style="text-align:left; padding:.75rem;">Nombre</th>
+            <th style="text-align:left; padding:.75rem;">Tipo</th>
+            <th style="text-align:left; padding:.75rem;">Estado</th>
+            <th style="text-align:left; padding:.75rem;">Prioridad</th>
+            <th style="text-align:left; padding:.75rem;">Responsable</th>
+            <th style="text-align:left; padding:.75rem;">Acción</th>
+          </tr>
+          </thead>
+
+          <tbody>
+            @for (s of solicitudes; track s.id) {
+              <tr style="border-top:1px solid var(--gris-borde);">
+                <td style="padding:.75rem;">{{ s.nombre }}</td>
+                <td style="padding:.75rem;">
+                  {{ s.tipoSolicitud ? TIPO_LABEL[s.tipoSolicitud] : 'Sin clasificar' }}
+                </td>
+                <td style="padding:.75rem;">
+                  <span [class]="badgeEstado(s.estado)">
+                    {{ ESTADO_LABEL[s.estado] }}
+                  </span>
+                </td>
+                <td style="padding:.75rem;">
+                  @if (s.prioridad) {
+                    <span [class]="badgePrioridad(s.prioridad)">
+                      {{ PRIORIDAD_LABEL[s.prioridad] }}
+                    </span>
+                  } @else {
+                    Sin prioridad
+                  }
+                </td>
+                <td style="padding:.75rem;">{{ s.responsableId || 'Sin asignar' }}</td>
+                <td style="padding:.75rem;">
+                  <a class="btn btn-outline" [routerLink]="['/solicitudes', s.id]">
+                    Ver detalle
+                  </a>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6" style="padding:1rem;">No hay solicitudes registradas.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
 </div>
